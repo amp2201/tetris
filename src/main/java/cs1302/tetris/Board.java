@@ -94,7 +94,6 @@ public class Board extends TilePane {
 
     public void fall() {
 
-//        moveLeft();
         if (aL[0][0] == 19 || aL[1][0] == 19 || aL[2][0] == 19 || aL[3][0] == 19 ||
         state[aL[0][0] + 1][aL[0][1]] == true || // if there is a piece below a block, don't fa
         state[aL[1][0] + 1][aL[1][1]] == true ||
@@ -128,12 +127,15 @@ public class Board extends TilePane {
     public void play() {
 
         loadIn();
+        //moveLeft();
+
         EventHandler<ActionEvent> faller = event -> fall();
         KeyFrame fallFrame = new KeyFrame(Duration.seconds(1), faller);
         fallLine = new Timeline();
         fallLine.setCycleCount(Timeline.INDEFINITE);
         fallLine.getKeyFrames().add(fallFrame);
-        fallLine.play();
+        runNow(() -> fallLine.play());
+        //fallLine.play();
     }
 
     public void moveLeft() {
@@ -160,5 +162,38 @@ public class Board extends TilePane {
         content[aL[2][0]][aL[2][1]] = activeBlocks[2];
         content[aL[3][0]][aL[3][1]] = activeBlocks[3];
         updateBoard();
+    }
+
+    public void moveRight() {
+
+        if (aL[0][1] == 9 || aL[1][1] == 9 || aL[2][1] == 9 || aL[3][1] == 9 ||
+        state[aL[0][0]][aL[0][1] + 1] == true ||
+        state[aL[1][0]][aL[1][1] + 1] == true ||
+        state[aL[2][0]][aL[2][1] + 1] == true ||
+        state[aL[3][0]][aL[3][1] + 1] == true) {
+
+            return;
+        }
+
+        content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+        content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+        content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+        content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+        aL[0][1]++;
+        aL[1][1]++;
+        aL[2][1]++;
+        aL[3][1]++;
+        content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+        content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+        content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+        content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+        updateBoard();
+    }
+
+    public static void runNow(Runnable target) {
+
+        Thread t = new Thread(target);
+        t.setDaemon(true);
+        t.start();
     }
 } // Board
