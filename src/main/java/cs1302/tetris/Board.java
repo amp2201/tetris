@@ -9,6 +9,8 @@ import javafx.event.ActionEvent;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 import javafx.animation.Timeline;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 
 public class Board extends TilePane {
 
@@ -17,19 +19,25 @@ public class Board extends TilePane {
     private Rectangle[][] content;
     private Group[][] holders;
 
+    private ImageView nextImage;
     private Tetramino active;
     private Rectangle[] activeBlocks;
     private int[][] aL;
 
     private Timeline fallLine;
+    private String orientation;
 
-    public Board() {
+    private int nextInt;
+
+    public Board(ImageView nextImg) {
 
         super();
+        nextImage = nextImg;
         this.setPrefColumns(10);
         aL = new int[4][2];
         blanks = new Rectangle[20][10];
         activeBlocks = new Rectangle[4];
+        orientation = "";
         for (int i = 0; i < 20; i++) {
 
             for (int j = 0; j < 10; j++) {
@@ -41,7 +49,16 @@ public class Board extends TilePane {
                 blanks[i][j].setWidth(25);
             }
         }
-
+        /*
+        blanks[0][3].setFill(Color.LIGHTCORAL);
+        blanks[0][4].setFill(Color.LIGHTCORAL);
+        blanks[0][5].setFill(Color.LIGHTCORAL);
+        blanks[0][6].setFill(Color.LIGHTCORAL);
+        blanks[1][3].setFill(Color.LIGHTCORAL);
+        blanks[1][4].setFill(Color.LIGHTCORAL);
+        blanks[1][5].setFill(Color.LIGHTCORAL);
+        blanks[1][6].setFill(Color.LIGHTCORAL);
+        */
         state = new Boolean[20][10];
         content = new Rectangle[20][10];
         holders = new Group[20][10];
@@ -59,11 +76,29 @@ public class Board extends TilePane {
         }
     } // constructor
 
-    public void loadIn() {
+    public void loadIn(int next) {
 
-        active = new Tetramino();
+        active = new Tetramino(next);
+
+        nextInt = active.getNextShape();
+        if (nextInt == 0) {
+            nextImage.setImage(new Image("file:resources/yellow.png"));
+        } else if (nextInt == 1) {
+            nextImage.setImage(new Image("file:resources/cyan.png"));
+        } else if (nextInt == 2) {
+            nextImage.setImage(new Image("file:resources/purple.png"));
+        } else if (nextInt == 3) {
+            nextImage.setImage(new Image("file:resources/blue.png"));
+        } else if (nextInt == 4) {
+           nextImage.setImage(new Image("file:resources/orange.png"));
+        } else if (nextInt == 5) {
+            nextImage.setImage(new Image("file:resources/green.png"));
+        } else if (nextInt == 6) {
+            nextImage.setImage(new Image("file:resources/red.png"));
+        }
         aL = active.getInitialLocation();
         activeBlocks = active.getBlocks();
+        orientation = "up";
         // checks for gameover
         if (state[aL[0][0]][aL[0][1]] == true ||
         state[aL[1][0]][aL[1][1]] == true ||
@@ -105,7 +140,8 @@ public class Board extends TilePane {
             state[aL[1][0]][aL[1][1]] = true;
             state[aL[2][0]][aL[2][1]] = true;
             state[aL[3][0]][aL[3][1]] = true;
-            loadIn();
+            clearLines();
+            loadIn(active.getNextShape());
             //fallLine.play();
             return;
         }
@@ -126,7 +162,7 @@ public class Board extends TilePane {
 
     public void play() {
 
-        loadIn();
+        loadIn(-1);
         //moveLeft();
 
         EventHandler<ActionEvent> faller = event -> fall();
@@ -195,5 +231,690 @@ public class Board extends TilePane {
         Thread t = new Thread(target);
         t.setDaemon(true);
         t.start();
+    }
+
+    public void rotateLeftPurple() {
+
+        int rowCenter = aL[1][0];
+        int colCenter = aL[1][1];
+        if (orientation.equals("up")) {
+
+            if (aL[1][0] == 19 || state[rowCenter + 1][colCenter] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter;
+                aL[2][0] = rowCenter - 1;
+                aL[2][1] = colCenter;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter - 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+            if (aL[1][1] == 9 || state[rowCenter][colCenter + 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter + 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter - 1;
+                aL[3][0] = rowCenter + 1;
+                aL[3][1] = colCenter ;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+
+            }
+        } else if (orientation.equals("down")) {
+
+            if (rowCenter == 0 || state[rowCenter - 1][colCenter] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter;
+                aL[2][0] = rowCenter + 1;
+                aL[2][1] = colCenter;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter + 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+            if (colCenter == 0 || state[rowCenter][colCenter - 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter - 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter + 1;
+                aL[3][0] = rowCenter - 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    }
+
+    public void rotateLeftCyan() {
+
+        int rowCenter;
+        int colCenter;
+        if (orientation.equals("up")) {
+
+            rowCenter = aL[2][0];
+            colCenter = aL[2][1];
+            if (rowCenter == 0 || state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter] == true || state[rowCenter + 2][colCenter] == true
+                || rowCenter == 19 || rowCenter == 18) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 2;
+                aL[0][1] = colCenter;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter - 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+            rowCenter = aL[1][0];
+            colCenter = aL[1][1];
+
+            if (colCenter == 9 || colCenter == 0 || colCenter == 1 ||
+            state[rowCenter][colCenter - 2] == true || state[rowCenter][colCenter - 1] == true ||
+            state[rowCenter][colCenter + 1] == true) {
+                return;
+            } else {
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter + 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter - 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter - 2;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+            }
+        } else if (orientation.equals("down")) {
+
+            rowCenter = aL[2][0];
+            colCenter = aL[2][1];
+
+            if (rowCenter == 0 || rowCenter == 1 || rowCenter == 19 ||
+            state[rowCenter - 2][colCenter] == true || state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter] == true) {
+
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 2;
+                aL[0][1] = colCenter;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter + 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+
+            rowCenter = aL[1][0];
+            colCenter = aL[1][1];
+            if (colCenter == 0 || colCenter == 9 || colCenter == 8 ||
+                state[rowCenter][colCenter - 1] == true ||
+                state[rowCenter][colCenter + 1] == true ||
+                state[rowCenter][colCenter + 2] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter - 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter + 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter + 2;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    }
+
+    public void rotateLeftBlue() {
+
+        int rowCenter = aL[2][0];
+        int colCenter = aL[2][1];
+
+        if (orientation.equals("up")) {
+
+            if (rowCenter == 0 || rowCenter == 19 || state[rowCenter - 1][colCenter] == true
+            || state[rowCenter + 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter - 1] == true) {
+                return;
+            } else {
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter - 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+
+            if (colCenter == 0 || colCenter == 9 || state[rowCenter][colCenter - 1] == true ||
+            state[rowCenter][colCenter + 1] == true || state[rowCenter + 1][colCenter + 1] == true){
+
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter + 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter - 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+            }
+        } else if (orientation.equals("down")) {
+
+            if (rowCenter == 0 || rowCenter == 19 || state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter - 1][colCenter + 1] == true || state[rowCenter + 1][colCenter] == true){
+
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter + 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+
+            if (colCenter == 0 || state[rowCenter - 1][colCenter - 1] == true ||
+            state[rowCenter][colCenter - 1] == true || state[rowCenter][colCenter + 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter - 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter + 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    }
+
+    public void rotateLeftOrange() {
+
+        int rowCenter = aL[2][0];
+        int colCenter = aL[2][1];
+
+        if (orientation.equals("up")) {
+
+            if (rowCenter == 19 || state[rowCenter - 1][colCenter - 1] == true ||
+            state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter - 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+
+            if (colCenter == 9 || state[rowCenter + 1][colCenter - 1] == true ||
+            state[rowCenter][colCenter - 1] || state[rowCenter][colCenter + 1]) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter + 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter - 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+            }
+        } else if (orientation.equals("down")) {
+
+            if (rowCenter == 0 || state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter] || state[rowCenter + 1][colCenter + 1]) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter + 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+
+            if (colCenter == 0 || state[rowCenter][colCenter - 1] == true ||
+            state[rowCenter][colCenter + 1] || state[rowCenter - 1][colCenter + 1]) {
+
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter - 1;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter + 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    }
+
+    public void rotateLeftGreen() {
+
+        int rowCenter = aL[3][0];
+        int colCenter = aL[3][1];
+
+        if (orientation.equals("up")) {
+
+            if (rowCenter == 19 || state[rowCenter - 1][colCenter - 1] == true ||
+            state[rowCenter + 1][colCenter] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter - 1;
+                aL[2][0] = rowCenter + 1;
+                aL[2][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+
+            if (colCenter == 9 || state[rowCenter][colCenter + 1] == true ||
+            state[rowCenter + 1][colCenter - 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter - 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter + 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+            }
+        } else if (orientation.equals("down")) {
+
+            if (rowCenter == 0 || state[rowCenter - 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter + 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter + 1;
+                aL[2][0] = rowCenter - 1;
+                aL[2][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+
+            if (colCenter == 0 || state[rowCenter][colCenter - 1] == true ||
+            state[rowCenter - 1][colCenter + 1] == true) {
+                return;
+            } else {
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter + 1;
+                aL[2][0] = rowCenter;
+                aL[2][1] = colCenter - 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    }
+
+    public void rotateLeftRed() {
+
+        int rowCenter = aL[2][0];
+        int colCenter = aL[2][1];
+        if (orientation.equals("up")) {
+
+            if (rowCenter == 19 || state[rowCenter][colCenter - 1] == true ||
+            state[rowCenter + 1][colCenter - 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter - 1;
+                aL[3][0] = rowCenter - 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "left";
+            }
+        } else if (orientation.equals("left")) {
+
+            if (colCenter == 9 || state[rowCenter + 1][colCenter] == true ||
+            state[rowCenter + 1][colCenter + 1] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter + 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter + 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter - 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "down";
+            }
+        } else if (orientation.equals("down")) {
+
+            if (rowCenter == 0 || state[rowCenter][colCenter + 1] == true ||
+            state[rowCenter - 1][colCenter + 1] == true) {
+
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter + 1;
+                aL[1][0] = rowCenter;
+                aL[1][1] = colCenter + 1;
+                aL[3][0] = rowCenter + 1;
+                aL[3][1] = colCenter;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "right";
+            }
+        } else if (orientation.equals("right")) {
+
+            if (colCenter == 0 || state[rowCenter - 1][colCenter - 1] == true ||
+            state[rowCenter - 1][colCenter] == true) {
+                return;
+            } else {
+
+                content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+                content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+                content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+                content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+                aL[0][0] = rowCenter - 1;
+                aL[0][1] = colCenter - 1;
+                aL[1][0] = rowCenter - 1;
+                aL[1][1] = colCenter;
+                aL[3][0] = rowCenter;
+                aL[3][1] = colCenter + 1;
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+                orientation = "up";
+            }
+        }
+    } // rotateLeftRed()
+
+    public String getActiveColor() {
+
+        return active.getColor();
+    }
+
+    public void clearLines() {
+
+        boolean clear = true;
+
+        for (int i = 0; i < 20; i++) {
+            clear = true;
+            for (int j = 0; j < 10; j++) {
+
+                if (state[i][j] == false) {
+                    clear = false;
+                    break;
+                }
+            }
+            if (clear) {
+                for (int k = i; k > 0; k--) {
+
+                    for (int z = 0; z < 10; z++) {
+                        content[k][z] = content[k - 1][z];
+                        state[k][z] = state[k - 1][z];
+                        blanks[k][z] = blanks[k - 1][z];
+                    }
+                }
+                for (int h = 0; h < 10; h++) {
+                    blanks[0][h] = new Rectangle();
+                    blanks[0][h].setFill(Color.WHITE);
+                    blanks[0][h].setStroke(Color.SLATEGRAY);
+                    blanks[0][h].setHeight(25);
+                    blanks[0][h].setWidth(25);
+                    content[0][h] = blanks[0][h];
+                    state[0][h] = false;
+                }
+                updateBoard();
+                /*try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    System.out.print("");
+                    }*/
+            }
+        }
+    }
+
+    public Timeline getTimeline() {
+
+        return fallLine;
     }
 } // Board

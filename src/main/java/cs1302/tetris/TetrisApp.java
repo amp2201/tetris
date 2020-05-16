@@ -11,6 +11,9 @@ import javafx.scene.control.Button;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.KeyCode;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+import javafx.scene.image.ImageView;
 
 public class TetrisApp extends Application {
 
@@ -20,12 +23,21 @@ public class TetrisApp extends Application {
 
         HBox g = new HBox();
 
-        Board board = new Board();
+        ImageView imageNext = new ImageView("file:resources/yellow.png");
+
+        Board board = new Board(imageNext);
         Button button = new Button("Start");
         g.getChildren().add(button);
         g.getChildren().add(board);
 
+        VBox rightCol = new VBox();
 
+        // ImageView imageNext = new ImageView("file:resources/yellow.png");
+
+        rightCol.getChildren().add(imageNext);
+        g.getChildren().add(rightCol);
+
+        //Timeline timeline = board.getTimeline();
         EventHandler<ActionEvent> starter = event -> board.play();
         button.setOnAction(starter);
         Scene scene = new Scene(g);
@@ -36,6 +48,24 @@ public class TetrisApp extends Application {
                 board.moveRight();
             } else if (event.getCode() == KeyCode.S) {
                 board.fall();
+
+                //timeline.stop();
+                board.getTimeline().jumpTo(Duration.seconds(.1));
+                board.getTimeline().play();
+            } else if (event.getCode() == KeyCode.W) {
+                if (board.getActiveColor().equals("cyan")) {
+                    board.rotateLeftCyan();
+                } else if (board.getActiveColor().equals("purple")) {
+                    board.rotateLeftPurple();
+                } else if (board.getActiveColor().equals("blue")) {
+                    board.rotateLeftBlue();
+                } else if (board.getActiveColor().equals("orange")) {
+                    board.rotateLeftOrange();
+                } else if (board.getActiveColor().equals("green")) {
+                    board.rotateLeftGreen();
+                } else if (board.getActiveColor().equals("red")) {
+                    board.rotateLeftRed();
+                }
             }
         });
         stage.setTitle("Tetris!");

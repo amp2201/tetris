@@ -12,12 +12,14 @@ public class Tetramino {
 
     private String shape;
     private int intShape;
+    private int nextShape;
     private int size;
     private int[][] blockLocations;
 
+
     private Random randy = new Random();
 
-    public Tetramino() {
+    public Tetramino(int next) {
 
         blockLocations = new int[20][10];
         blocks = new Rectangle[4];
@@ -29,8 +31,15 @@ public class Tetramino {
             blocks[i].setStroke(Color.BLACK);
         }
 
-        intShape = randy.nextInt(7);
-        //intShape = 1;
+        if (next == -1) {
+            intShape = randy.nextInt(7);
+            nextShape = randy.nextInt(7);
+        } else {
+            intShape = next;
+            nextShape = randy.nextInt(7);
+        }
+
+        //intShape = 6;
         if (intShape == 0) {
 
             shape = "yellow";
@@ -146,6 +155,8 @@ public class Tetramino {
 
         } else if (intShape == 5) {
 
+            shape = "green";
+
             for (int i = 0; i < 4; i++) {
                 blocks[i].setFill(Color.LIME);
             }
@@ -163,6 +174,8 @@ public class Tetramino {
             blockLocations[3][1] = 4;
 
         } else if (intShape == 6) {
+
+            shape = "red";
 
             for (int i = 0; i < 4; i++) {
                 blocks[i].setFill(Color.RED);
@@ -190,5 +203,13 @@ public class Tetramino {
     public int[][] getInitialLocation() {
 
         return blockLocations;
+    }
+
+    public String getColor() {
+        return shape;
+    }
+
+    public int getNextShape() {
+        return nextShape;
     }
 }
