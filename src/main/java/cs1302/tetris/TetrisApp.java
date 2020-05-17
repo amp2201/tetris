@@ -14,6 +14,9 @@ import javafx.scene.input.KeyCode;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.Font;
 
 public class TetrisApp extends Application {
 
@@ -24,17 +27,19 @@ public class TetrisApp extends Application {
         HBox g = new HBox();
 
         ImageView imageNext = new ImageView("file:resources/yellow.png");
-
+        imageNext.setFitWidth(100);
+        imageNext.setPreserveRatio(true);
         Board board = new Board(imageNext);
         Button button = new Button("Start");
         g.getChildren().add(button);
         g.getChildren().add(board);
 
         VBox rightCol = new VBox();
-
+        Text nextText = new Text("  Next");
         // ImageView imageNext = new ImageView("file:resources/yellow.png");
-
-        rightCol.getChildren().add(imageNext);
+        nextText.setTextAlignment(TextAlignment.CENTER);
+        nextText.setFont(new Font (25));
+        rightCol.getChildren().addAll(nextText, imageNext);
         g.getChildren().add(rightCol);
 
         //Timeline timeline = board.getTimeline();
@@ -69,7 +74,7 @@ public class TetrisApp extends Application {
             }
         });
         stage.setTitle("Tetris!");
-        stage.setResizable(false);
+        stage.setResizable(true);
 
 
         stage.setScene(scene);
