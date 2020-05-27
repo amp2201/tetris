@@ -75,7 +75,7 @@
           <version>8.8.3</version>
           <configuration>
             <vendor>YourCompany</vendor>
-            <mainClass>your.package.with.Launcher</mainClass>
+            <mainClass>target.classes.cs1302.tetris.TetrisDriver</mainClass>
           </configuration>
         </plugin>
       </plugins>
