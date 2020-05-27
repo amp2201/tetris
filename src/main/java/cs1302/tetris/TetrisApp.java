@@ -29,9 +29,19 @@ public class TetrisApp extends Application {
         ImageView imageNext = new ImageView("file:resources/yellow.png");
         imageNext.setFitWidth(100);
         imageNext.setPreserveRatio(true);
-        Board board = new Board(imageNext);
+        ImageView imageHeld = new ImageView("file:resources/yellow.png");
+        imageHeld.setFitWidth(100);
+        imageNext.setPreserveRatio(true);
+        Board board = new Board(imageNext, imageHeld);
         Button button = new Button("Start");
-        g.getChildren().add(button);
+        VBox leftCol = new VBox();
+        leftCol.getChildren().add(button);
+
+        Text heldText = new Text("  Held");
+        heldText.setFont(new Font(25));
+        leftCol.getChildren().add(heldText);
+        leftCol.getChildren().add(imageHeld);
+        g.getChildren().add(leftCol);
         g.getChildren().add(board);
 
         VBox rightCol = new VBox();
@@ -71,6 +81,8 @@ public class TetrisApp extends Application {
                 } else if (board.getActiveColor().equals("red")) {
                     board.rotateLeftRed();
                 }
+            } else if (event.getCode() == KeyCode.E) {
+                board.hold();
             }
         });
         stage.setTitle("Tetris!");

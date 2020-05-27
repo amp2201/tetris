@@ -20,19 +20,34 @@ public class Board extends TilePane {
     private Group[][] holders;
 
     private ImageView nextImage;
+    private ImageView heldImage;
     private Tetramino active;
     private Rectangle[] activeBlocks;
     private int[][] aL;
+    private Boolean canHold;
 
     private Timeline fallLine;
     private String orientation;
 
     private int nextInt;
 
-    public Board(ImageView nextImg) {
+    private KeyFrame fallFrame;
+
+    private int held;
+    private int clearedLines;
+    private boolean speedUp;
+    EventHandler<ActionEvent> faller;
+
+    public Board(ImageView nextImg, ImageView heldImg) {
 
         super();
+        clearedLines = 0;
+        faller = event -> fall();
         nextImage = nextImg;
+        heldImage = heldImg;
+        held = -1;
+        canHold = true;
+        speedUp = true;
         this.setPrefColumns(10);
         aL = new int[4][2];
         blanks = new Rectangle[20][10];
@@ -141,7 +156,9 @@ public class Board extends TilePane {
             state[aL[2][0]][aL[2][1]] = true;
             state[aL[3][0]][aL[3][1]] = true;
             clearLines();
+            canHold = true;
             loadIn(active.getNextShape());
+
             //fallLine.play();
             return;
         }
@@ -165,8 +182,8 @@ public class Board extends TilePane {
         loadIn(-1);
         //moveLeft();
 
-        EventHandler<ActionEvent> faller = event -> fall();
-        KeyFrame fallFrame = new KeyFrame(Duration.seconds(1), faller);
+
+        fallFrame = new KeyFrame(Duration.seconds(1), faller);
         fallLine = new Timeline();
         fallLine.setCycleCount(Timeline.INDEFINITE);
         fallLine.getKeyFrames().add(fallFrame);
@@ -875,7 +892,7 @@ public class Board extends TilePane {
     public void clearLines() {
 
         boolean clear = true;
-
+        int tempClearedLines = clearedLines;
         for (int i = 0; i < 20; i++) {
             clear = true;
             for (int j = 0; j < 10; j++) {
@@ -886,6 +903,7 @@ public class Board extends TilePane {
                 }
             }
             if (clear) {
+                clearedLines++;
                 for (int k = i; k > 0; k--) {
 
                     for (int z = 0; z < 10; z++) {
@@ -909,6 +927,22 @@ public class Board extends TilePane {
                 } catch (Exception e) {
                     System.out.print("");
                     }*/
+                if (speedUp) {
+                    if (tempClearedLines < 10 && clearedLines >= 10) {
+                        fallFrame = new KeyFrame(Duration.seconds(.9), faller);
+                    } else if (tempClearedLines < 20 && clearedLines >= 20) {
+                        fallFrame = new KeyFrame(Duration.seconds(.8), faller);
+                    } else if (tempClearedLines < 30 && clearedLines >= 30) {
+                        fallFrame = new KeyFrame(Duration.seconds(.7), faller);
+                    } else if (tempClearedLines < 40 && clearedLines >= 40) {
+                        fallFrame = new KeyFrame(Duration.seconds(.6), faller);
+                    } else if (tempClearedLines < 50 && clearedLines >= 50) {
+                        fallFrame = new KeyFrame(Duration.seconds(.5), faller);
+                    } else if (tempClearedLines < 60 && clearedLines >= 60) {
+                        fallFrame = new KeyFrame(Duration.seconds(.4), faller);
+                        speedUp = false;
+                    }
+                }
             }
         }
     }
@@ -916,5 +950,76 @@ public class Board extends TilePane {
     public Timeline getTimeline() {
 
         return fallLine;
+    }
+
+    public void hold() {
+
+        if (canHold) {
+            content[aL[0][0]][aL[0][1]] = blanks[aL[0][0]][aL[0][1]];
+            content[aL[1][0]][aL[1][1]] = blanks[aL[1][0]][aL[1][1]];
+            content[aL[2][0]][aL[2][1]] = blanks[aL[2][0]][aL[2][1]];
+            content[aL[3][0]][aL[3][1]] = blanks[aL[3][0]][aL[3][1]];
+            if (held == -1) {
+                held = active.getIntShape();
+                int tempNext = active.getNextShape();
+                active = new Tetramino(tempNext);
+
+                nextInt = active.getNextShape();
+                if (nextInt == 0) {
+                    nextImage.setImage(new Image("file:resources/yellow.png"));
+                } else if (nextInt == 1) {
+                    nextImage.setImage(new Image("file:resources/cyan.png"));
+                } else if (nextInt == 2) {
+                    nextImage.setImage(new Image("file:resources/purple.png"));
+                } else if (nextInt == 3) {
+                    nextImage.setImage(new Image("file:resources/blue.png"));
+                } else if (nextInt == 4) {
+                    nextImage.setImage(new Image("file:resources/orange.png"));
+                } else if (nextInt == 5) {
+                    nextImage.setImage(new Image("file:resources/green.png"));
+                } else if (nextInt == 6) {
+                    nextImage.setImage(new Image("file:resources/red.png"));
+                }
+
+
+                aL = active.getInitialLocation();
+                activeBlocks = active.getBlocks();
+                orientation = "up";
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+            } else {
+                int tempHeld = active.getIntShape();
+                active = new Tetramino(held, nextInt);
+                held = tempHeld;
+                aL = active.getInitialLocation();
+                activeBlocks = active.getBlocks();
+                orientation = "up";
+                content[aL[0][0]][aL[0][1]] = activeBlocks[0];
+                content[aL[1][0]][aL[1][1]] = activeBlocks[1];
+                content[aL[2][0]][aL[2][1]] = activeBlocks[2];
+                content[aL[3][0]][aL[3][1]] = activeBlocks[3];
+                updateBoard();
+            }
+            canHold = false;
+            if (held == 0) {
+                heldImage.setImage(new Image("file:resources/yellow.png"));
+            } else if (held == 1) {
+                heldImage.setImage(new Image("file:resources/cyan.png"));
+            } else if (held == 2) {
+                heldImage.setImage(new Image("file:resources/purple.png"));
+            } else if (held == 3) {
+                heldImage.setImage(new Image("file:resources/blue.png"));
+            } else if (held == 4) {
+                heldImage.setImage(new Image("file:resources/orange.png"));
+            } else if (held == 5) {
+                heldImage.setImage(new Image("file:resources/green.png"));
+            } else if (held == 6) {
+                heldImage.setImage(new Image("file:resources/red.png"));
+            }
+
+        }
     }
 } // Board
