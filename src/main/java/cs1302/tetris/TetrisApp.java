@@ -18,11 +18,12 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.Font;
 
+/**
+ * Builds the app's UI, starts the main gameplay loop, and sets up event handlers to respond to the user's key presses.
+ */
 public class TetrisApp extends Application {
 
     public void start(Stage stage) {
-
-
 
         HBox g = new HBox();
 
@@ -57,17 +58,19 @@ public class TetrisApp extends Application {
         button.setOnAction(starter);
         Scene scene = new Scene(g);
         scene.setOnKeyPressed(event -> {
+            // use A, S, and D keys to move the Tetraminos
             if (event.getCode() == KeyCode.A) {
                 board.moveLeft();
+                
             } else if (event.getCode() == KeyCode.D) {
                 board.moveRight();
+                
             } else if (event.getCode() == KeyCode.S) {
                 board.fall();
-
-                //timeline.stop();
                 board.getTimeline().jumpTo(Duration.seconds(.1));
                 board.getTimeline().play();
-            } else if (event.getCode() == KeyCode.W) {
+                
+            } else if (event.getCode() == KeyCode.W) {      // use the W key to rotate Tetramino
                 if (board.getActiveColor().equals("cyan")) {
                     board.rotateLeftCyan();
                 } else if (board.getActiveColor().equals("purple")) {
@@ -81,13 +84,12 @@ public class TetrisApp extends Application {
                 } else if (board.getActiveColor().equals("red")) {
                     board.rotateLeftRed();
                 }
-            } else if (event.getCode() == KeyCode.E) {
+            } else if (event.getCode() == KeyCode.E) {  // use the E key to hold a Tetramino
                 board.hold();
             }
         });
         stage.setTitle("Tetris!");
         stage.setResizable(true);
-
 
         stage.setScene(scene);
         stage.sizeToScene();
